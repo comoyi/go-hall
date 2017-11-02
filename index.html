@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo</title>
+    <style type="text/css">
+        #log {
+            position: absolute;
+            top: 1em;
+            left: 1em;
+            right: 0em;
+            bottom: 3em;
+            overflow: auto;
+        }
+        #form {
+            position: absolute;
+            bottom: 1em;
+            width: 95%;
+        }
+        #message {
+            width: 80%;
+        }
+        #btn {
+            width: 15%;
+        }
+    </style>
+</head>
+<body>
+<div id="log"></div>
+<form id="form">
+    <input id="message" type="text">
+    <input id="btn" type="submit" value="Send">
+</form>
+<script type="text/javascript">
+    window.onload = function(){
+        var connect;
+
+        function appendLog(item) {
+            var log = document.getElementById("log");
+            log.appendChild(item);
+            log.scrollTop = log.scrollTop + 100;
+        }
+
+        if (window["WebSocket"]) {
+            connect = new WebSocket("ws://" + document.location.host + "/ws");
+            connect.onmessage = function (ev) {
+                var message = ev.data;
+                var item = document.createElement("div");
+                item.innerText = message;
+                appendLog(item);
+            }
+            connect.onclose = function (ev) {
+                var item = document.createElement("div");
+                item.innerText = "Connection closed";
+                appendLog(item);
+            }
+        } else {
+            var item = document.createElement("div");
+            item.innerText = "Your browser does not support websocket";
+            appendLog(item);
+        }
+
+        document.getElementById("form").onsubmit = function(){
+            var message = document.getElementById("message");
+            if(!connect) {
+                return false;
+            }
+            if (!message.value) {
+                return false;
+            }
+            connect.send(message.value);
+            message.value = "";
+            return false;
+        }
+    }
+</script>
+</body>
+</html>
