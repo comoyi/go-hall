@@ -18,7 +18,7 @@ func (c *Client) Read() {
 	for {
 		messageType, message, err := c.conn.ReadMessage()
 		if err != nil {
-			log.Info("read error", err, messageType, message)
+			log.Info("read error: ", err, messageType, message)
 			delete(clients, c)
 			break
 		}
