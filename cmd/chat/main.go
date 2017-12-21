@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/gorilla/websocket"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -19,9 +19,6 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	}
 	http.ServeFile(w, r, "index.html")
 }
-
-var clients = make(map[*Client]bool)
-var nextClientId int = 0
 
 func main() {
 	var addr = flag.String("p", ":8080", "http service address")
@@ -42,12 +39,8 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := new(Client)
-	nextClientId++
-	client.id = nextClientId
-	client.conn = conn
-	client.queue = make(chan []byte, 256)
-	clients[client] = true
+	client := NewClient(conn)
+	AddClient(client)
 
 	go client.Read()
 	go client.Write()

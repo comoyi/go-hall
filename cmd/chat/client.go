@@ -11,6 +11,19 @@ type Client struct {
 	queue chan []byte
 }
 
+var clientId = 0
+
+func NewClient(conn *websocket.Conn) *Client {
+
+	clientId++
+
+	return &Client{
+		id:    clientId,
+		conn:  conn,
+		queue: make(chan []byte, 256),
+	}
+}
+
 func (c *Client) Read() {
 	defer func() {
 		c.conn.Close()
