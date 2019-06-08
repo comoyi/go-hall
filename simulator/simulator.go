@@ -21,18 +21,18 @@ func simulate(id int) {
 		fmt.Println(conn, response, err)
 		return
 	}
-	go receive(conn)
+	go receive(conn, id)
 	go send(conn, id)
 }
 
 func send(conn *websocket.Conn, id int) {
 	for {
+		conn.WriteMessage(websocket.TextMessage, []byte("client["+strconv.Itoa(id)+"]"+time.Now().Format("2006-01-02 15:04:05")))
 		time.Sleep(1000 * time.Millisecond)
-		conn.WriteMessage(websocket.TextMessage, []byte("["+strconv.Itoa(id)+"]"+time.Now().Format("2006-01-02 15:04:05")))
 	}
 }
 
-func receive(conn *websocket.Conn) {
+func receive(conn *websocket.Conn, id int) {
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
@@ -40,6 +40,6 @@ func receive(conn *websocket.Conn) {
 			return
 		}
 
-		fmt.Printf("received: %s\n", message)
+		fmt.Printf("client[%d]received: %s\n", id, message)
 	}
 }
